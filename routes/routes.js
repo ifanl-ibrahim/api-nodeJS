@@ -11,7 +11,7 @@ router.get('/users', userController.users);
 
 router.get('/groupes', userController.groupes);
 
-router.get('groupes/:id', userController.usersList);
+router.get('/usersList', userController.usersList);
 
 router.get('/login', userController.login);
 

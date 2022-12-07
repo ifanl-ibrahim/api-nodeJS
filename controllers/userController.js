@@ -1,6 +1,10 @@
 const User = require('../models/userModel');
 const connexion = require('../database/connection');
 
+exports.home = (req, res) => {
+    res.render('home');
+}
+
 exports.users = (req, res) => {
     connexion.query('SELECT lastname, firstname FROM users', function (err, rows) {
         if (err) throw err;
@@ -22,14 +26,14 @@ exports.groupes = (req, res) => {
 };
 
 exports.usersList = (req, res) => {
-    // connexion.query('SELECT * FROM users', (err, rows) => {
-    //     if (err) throw err;
-    //     console.log('Data received from Db:\n');
-    //     console.log(rows);
-    //     res.send(rows);
-    // });
+    connexion.query('SELECT * FROM users', (err, rows) => {
+        if (err) throw err;
+        console.log('Data received from Db:\n');
+        console.log(rows);
+        res.send(rows);
+    });
     console.log('users');
-    res.send('users');
+    // res.send('users');
 };
 
 exports.login = (req, res) => {

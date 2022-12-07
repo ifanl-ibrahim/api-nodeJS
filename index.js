@@ -8,7 +8,7 @@ app.use(express.urlencoded({ extended: true }));
 // Import Routes
 const routes = require('./routes/routes');
 
-app.use('/', routes);
+app.use('/api', routes);
 
 // Setup server port
 app.listen(3000);
