@@ -1,58 +1,80 @@
 const User = require('../models/userModel');
-const connexion = require('../database/connection');
+const { validationResult } = require('express-validator');
 
-exports.home = (req, res) => {
-    res.render('home');
-}
+const bcrypt = require('bcrypt');
 
-exports.users = (req, res) => {
-    connexion.query('SELECT lastname, firstname FROM users', function (err, rows) {
-        if (err) throw err;
-        console.log('Data received from Db:\n');
-        console.log(rows);
-        res.send(rows);
-    });
-    console.log('users');
+User.getUsers = async (req, res) => {
+    await User.users()
+        .then((rows) => {
+            res.status(200).send(rows);
+        })
+        .catch((err) => {
+            res.status(500).send({
+                message: err.message || "Une erreur est survenue lors de la récupération des utilisateurs."
+            });
+        });
 };
 
-exports.groupes = (req, res) => {
-    connexion.query('SELECT name FROM groupes', (err, rows) => {
-        if (err) throw err;
-        console.log('Data received from Db:\n');
-        console.log(rows);
-        res.send(rows);
-    });
-    console.log('groupes');
+User.getGroup = async (req, res) => {
+    await User.groups()
+        .then((rows) => {
+            res.status(200).send(rows);
+        })
+        .catch((err) => {
+            res.status(500).send({
+                message: err.message || "Une erreur est survenue lors de la récupération des groupes."
+            });
+        });
 };
 
-exports.usersList = (req, res) => {
-    connexion.query('SELECT * FROM users', (err, rows) => {
-        if (err) throw err;
-        console.log('Data received from Db:\n');
-        console.log(rows);
-        res.send(rows);
-    });
-    console.log('users');
-    // res.send('users');
+User.getUsersList = async (req, res) => {
+    const id = req.params.id;
+    await User.usersList(id)
+        .then((rows) => {
+            res.status(200).send(rows);
+        })
+        .catch((err) => {
+            res.status(500).send({
+                message: err.message || "Une erreur est survenue lors de la récupération des utilisateurs."
+            });
+        });
 };
 
-exports.login = (req, res) => {
-    // connexion.query('SELECT * FROM users WHERE email = ? AND password = ?', [req.body.email, req.body.password], (err, rows) => {
-    //     if (err) throw err;
-    //     console.log('Data received from Db:\n');
-    //     console.log(rows);
-    //     res.send(rows);
-    // });
-    console.log('login');
-}
+User.register = async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(422).json({ errors: errors.array() });
+    } else {
+        const email = req.body.email;
+        const password = req.body.password;
+        const firstname = req.body.firstname;
+        const lastname = req.body.lastname;
+        const hash = bcrypt.hashSync(password, 10);
+        const user = new User(email, hash, firstname, lastname);
+        await user.add(email, hash, firstname, lastname)
+            .then((rows) => {
+                res.status(200).send(rows);
+            })
+            .catch((err) => {
+                res.status(500).send({
+                    message: err.message || "Une erreur est survenue lors de la création de l'utilisateur."
+                });
+            });
+    }
+};
 
-exports.register = (req, res) => {
-    let user = new User(req.body.firstname, req.body.lastname, req.body.email, req.body.password);
-    connexion.query('INSERT INTO users SET ?', user, (err, rows) => {
-        if (err) throw err;
-        console.log('Data received from Db:\n');
-        console.log(rows);
-        res.send(rows);
-    });
-    console.log('register');
-}
+User.login = async (req, res) => {
+    const connexion = await User.checkLogin(req.body.email, req.body.password);
+
+    if (connexion === true) {
+        const user = await User.findOneByEmail(req.body.email);
+        console.log(user[0].id);
+        const token = jwt.sign({ id: user[0].id}, accessTokenSecret, { expiresIn: '1h' });
+        res.status(200).send({ 'token': token });
+    } else {
+        res.status(404).send({
+            message: "Login ou mot de passe incorrect."
+        });
+    }
+};
+
