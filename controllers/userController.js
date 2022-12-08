@@ -1,5 +1,6 @@
 const User = require('../models/userModel');
 const { validationResult } = require('express-validator');
+const authenticateJWT = require('../middleware/AuthenticationJwt');
 
 const bcrypt = require('bcrypt');
 
@@ -77,4 +78,3 @@ User.login = async (req, res) => {
         });
     }
 };
-
