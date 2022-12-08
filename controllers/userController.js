@@ -1,13 +1,11 @@
 const User = require('../models/userModel');
 const { validationResult } = require('express-validator');
-const authenticateJWT = require('../middleware/AuthenticationJwt');
-
 const bcrypt = require('bcrypt');
 
-User.getUsers = async (req, res) => {
+exports.getUsers = async (req, res) => {
     await User.users()
         .then((rows) => {
-            res.status(200).send(rows);
+            res.send(rows);
         })
         .catch((err) => {
             res.status(500).send({
@@ -16,7 +14,7 @@ User.getUsers = async (req, res) => {
         });
 };
 
-User.getGroup = async (req, res) => {
+exports.getGroup = async (req, res) => {
     await User.groups()
         .then((rows) => {
             res.status(200).send(rows);
@@ -28,7 +26,7 @@ User.getGroup = async (req, res) => {
         });
 };
 
-User.getUsersList = async (req, res) => {
+exports.getUsersList = async (req, res) => {
     const id = req.params.id;
     await User.usersList(id)
         .then((rows) => {
@@ -41,7 +39,7 @@ User.getUsersList = async (req, res) => {
         });
 };
 
-User.register = async (req, res) => {
+exports.register = async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
         return res.status(422).json({ errors: errors.array() });
@@ -64,7 +62,7 @@ User.register = async (req, res) => {
     }
 };
 
-User.login = async (req, res) => {
+exports.login = async (req, res) => {
     const connexion = await User.checkLogin(req.body.email, req.body.password);
 
     if (connexion === true) {

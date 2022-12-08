@@ -9,8 +9,8 @@ const middlewareConnexion = () => {
             pointsForContainingLower: 10, pointsForContainingUpper: 10,
             pointsForContainingNumber: 10, pointsForContainingSymbol: 10
         }).withMessage('Le mot de passe doit contenir au moins 8 caractères, dont au moins 1 minuscule, 1 majuscule, 1 chiffre et 1 symbole.'),
-        body('firstname').isStrongFirstname({ minLength: 2, minNumbers: 0 }).withMessage('Le prénom doit contenir au moins 2 caractères'),
-        body('lastname').isStrongLastname({ minLength: 2, minNumbers: 0 }).withMessage('Le nom doit contenir au moins 2 caractères'),
+        body('firstname').isString({ minLength: 2, minNumbers: 0 }).withMessage('Le prénom doit contenir au moins 2 caractères'),
+        body('lastname').isString({ minLength: 2, minNumbers: 0 }).withMessage('Le nom doit contenir au moins 2 caractères'),
     ]
 }
 
